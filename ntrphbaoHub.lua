@@ -48,12 +48,15 @@ Instance.new("UICorner", button)
 
 -- Notify
 local function notify(txt)
+
     pcall(function()
+
         game.StarterGui:SetCore("SendNotification",{
             Title = "ntrphbao hub",
             Text = txt,
             Duration = 5
         })
+
     end)
 end
 
@@ -64,6 +67,7 @@ local dragStart
 local startPos
 
 local function update(input)
+
     local delta = input.Position - dragStart
 
     frame.Position = UDim2.new(
@@ -128,15 +132,30 @@ end
 -- Hop Server
 local function HopServer()
 
-    notify("Đang tìm server có Garou...")
+    notify("Đang tìm server...")
 
-    local req = game:HttpGet(
-        "https://games.roblox.com/v1/games/"..
-        game.GameId..
-        "/servers/Public?sortOrder=Asc&limit=100"
-    )
+    local success, result = pcall(function()
 
-    local data = HttpService:JSONDecode(req)
+        return game:HttpGet(
+            "https://games.roblox.com/v1/games/"..
+            game.GameId..
+            "/servers/Public?sortOrder=Asc&limit=100"
+        )
+
+    end)
+
+    if not success then
+        notify("Lỗi lấy server!")
+        warn(result)
+        return
+    end
+
+    local data = HttpService:JSONDecode(result)
+
+    if not data.data then
+        notify("Không load được server!")
+        return
+    end
 
     local Servers = {}
 
@@ -150,12 +169,14 @@ local function HopServer()
         end
     end
 
+    notify("Tìm thấy "..#Servers.." server")
+
     if #Servers > 0 then
 
         local RandomServer =
             Servers[math.random(1,#Servers)]
 
-        pcall(function()
+        local tpSuccess, tpError = pcall(function()
 
             TeleportService:TeleportToPlaceInstance(
                 PlaceID,
@@ -165,8 +186,13 @@ local function HopServer()
 
         end)
 
+        if not tpSuccess then
+            notify("Teleport lỗi!")
+            warn(tpError)
+        end
+
     else
-        notify("Không tìm thấy server!")
+        notify("Không có server!")
     end
 end
 
