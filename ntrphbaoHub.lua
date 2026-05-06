@@ -1,16 +1,12 @@
---// ntrphbao hub FULL FIX
+--// ntrphbao hub SIMPLE FIX
 
 repeat wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local UIS = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
-
--- SEA 2 PLACE ID
-local PlaceID = 77747658251236
 
 -- ANTI DUPLICATE UI
 pcall(function()
@@ -138,97 +134,23 @@ local function HasGarou()
     return false
 end
 
--- HTTP REQUEST FIX
-local requestfunc =
-    (syn and syn.request)
-    or (http and http.request)
-    or http_request
-    or request
-
-if not requestfunc then
-    notify("Executor không hỗ trợ request")
-    return
-end
-
--- HOP SERVER
+-- SIMPLE HOP
 local function HopServer()
 
-    notify("Đang tìm server...")
-
-    local success, result = pcall(function()
-
-        local response = requestfunc({
-            Url =
-            "https://games.roblox.com/v1/games/"..
-            game.GameId..
-            "/servers/Public?sortOrder=Asc&limit=100",
-
-            Method = "GET"
-        })
-
-        return response.Body
-    end)
-
-    if not success then
-        notify("Lỗi request")
-        warn(result)
-        return
-    end
-
-    local dataSuccess, data =
-        pcall(function()
-            return HttpService:JSONDecode(result)
-        end)
-
-    if not dataSuccess then
-        notify("Lỗi decode")
-        return
-    end
-
-    if not data.data then
-        notify("Không load được server")
-        return
-    end
-
-    local Servers = {}
-
-    for _,server in pairs(data.data) do
-
-        if tonumber(server.playing)
-        and tonumber(server.maxPlayers)
-        and server.id
-        and server.id ~= game.JobId
-        and server.playing < server.maxPlayers then
-
-            table.insert(Servers, server.id)
-
-        end
-    end
-
-    if #Servers <= 0 then
-        notify("Không có server")
-        return
-    end
-
-    notify("Đang hop...")
-
-    local RandomServer =
-        Servers[math.random(1,#Servers)]
+    notify("Đang hop server...")
 
     local tpSuccess, tpError =
         pcall(function()
 
-            TeleportService:TeleportToPlaceInstance(
-                PlaceID,
-                RandomServer,
-                player
-            )
+            TeleportService:Teleport(game.PlaceId)
 
         end)
 
     if not tpSuccess then
-        notify("Teleport thất bại")
+
+        notify("Hop thất bại")
         warn(tpError)
+
     end
 end
 
