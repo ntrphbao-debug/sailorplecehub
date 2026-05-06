@@ -1,4 +1,4 @@
---// ntrphbao hub
+--// ntrphbao hub FIX 773
 
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
@@ -18,8 +18,7 @@ frame.Size = UDim2.new(0,250,0,140)
 frame.Position = UDim2.new(0.4,0,0.35,0)
 frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 
-local frameCorner = Instance.new("UICorner")
-frameCorner.Parent = frame
+Instance.new("UICorner", frame)
 
 local title = Instance.new("TextLabel")
 title.Parent = frame
@@ -40,8 +39,7 @@ button.TextScaled = true
 button.Font = Enum.Font.GothamBold
 button.TextColor3 = Color3.fromRGB(255,255,255)
 
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.Parent = button
+Instance.new("UICorner", button)
 
 -- Notify
 local function notify(txt)
@@ -64,27 +62,37 @@ local function HasGarou()
     return false
 end
 
--- Hop Server
+-- Hop Server FIX
 local function HopServer()
-    notify("Đang tìm server có Garou...")
+    notify("Đang hop server...")
 
-    local req = game:HttpGet(
-        "https://games.roblox.com/v1/games/" ..
-        PlaceID ..
-        "/servers/Public?sortOrder=Asc&limit=100"
-    )
+    local success, err = pcall(function()
+        local req = game:HttpGet(
+            "https://games.roblox.com/v1/games/"..
+            PlaceID..
+            "/servers/Public?sortOrder=Asc&limit=100"
+        )
 
-    local data = HttpService:JSONDecode(req)
+        local data = HttpService:JSONDecode(req)
 
-    for _,server in pairs(data.data) do
-        if server.playing < server.maxPlayers and server.id ~= game.JobId then
-            TeleportService:TeleportToPlaceInstance(
-                PlaceID,
-                server.id,
-                player
-            )
-            break
+        for _,server in pairs(data.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                
+                -- FIX ERROR 773
+                TeleportService:TeleportToPlaceInstance(
+                    PlaceID,
+                    server.id,
+                    player
+                )
+
+                wait(3)
+            end
         end
+    end)
+
+    if not success then
+        notify("Hop thất bại!")
+        warn(err)
     end
 end
 
