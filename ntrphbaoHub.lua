@@ -5,7 +5,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
-local PlaceID = game.PlaceId
+local PlaceID = 77747658251236
 
 -- UI
 local gui = Instance.new("ScreenGui")
